@@ -1,3 +1,5 @@
+import { lessonsReducer } from './services/lessons.reducer';
+import { CourseEffects } from './course.effects';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HomeComponent} from "./home/home.component";
@@ -22,6 +24,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {RouterModule, Routes} from "@angular/router";
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { coursesReducer } from './services/course.reducer';
 
 
 export const coursesRoutes: Routes = [
@@ -59,7 +62,10 @@ export const coursesRoutes: Routes = [
         MatDatepickerModule,
         MatMomentDateModule,
         ReactiveFormsModule,
-        RouterModule.forChild(coursesRoutes)
+        RouterModule.forChild(coursesRoutes),
+        EffectsModule.forFeature([CourseEffects]),
+        StoreModule.forFeature('courses', coursesReducer),
+        StoreModule.forFeature('lessons', lessonsReducer),
     ],
     declarations: [HomeComponent, CoursesCardListComponent, CourseDialogComponent, CourseComponent],
     exports: [HomeComponent, CoursesCardListComponent, CourseDialogComponent, CourseComponent],

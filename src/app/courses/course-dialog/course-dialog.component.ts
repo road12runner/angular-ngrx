@@ -1,3 +1,4 @@
+import { CourseSaved } from './../courses.actions';
 import {Component, Inject, OnInit, ViewEncapsulation} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import {FormBuilder, Validators, FormGroup} from "@angular/forms";
@@ -54,7 +55,11 @@ export class CourseDialogComponent implements OnInit {
             .saveCourse(this.courseId, changes)
             .subscribe(
                 () => {
-
+                    const course: Update<Course> = {
+                        id: this.courseId,
+                        changes   
+                    }
+                    this.store.dispatch(new CourseSaved({course}));
                     this.dialogRef.close();
                 }
             );

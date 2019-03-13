@@ -1,3 +1,6 @@
+import { PageQuery, LessonsPageRequested } from './../courses.actions';
+import { Store, select } from '@ngrx/store';
+import { AppState } from './../../reducers/index';
 
 
 
@@ -5,7 +8,8 @@ import {CollectionViewer, DataSource} from "@angular/cdk/collections";
 import {Observable, BehaviorSubject, of} from "rxjs";
 import {Lesson} from "../model/lesson";
 import {CoursesService} from "./courses.service";
-import {catchError, finalize} from "rxjs/operators";
+import {catchError, finalize, tap} from "rxjs/operators";
+import { selectLessonsPage } from '../course.selector';
 
 
 
@@ -17,21 +21,22 @@ export class LessonsDataSource implements DataSource<Lesson> {
 
     public loading$ = this.loadingSubject.asObservable();
 
-    constructor(private coursesService: CoursesService) {
+    constructor(private store: Store<AppState>) {
 
     }
 
-    loadLessons(courseId:number,
-                pageIndex:number,
-                pageSize:number) {
-
-        this.loadingSubject.next(true);
-
-        this.coursesService.findLessons(courseId, pageIndex, pageSize).pipe(
-                catchError(() => of([])),
-                finalize(() => this.loadingSubject.next(false))
-            )
-            .subscribe(lessons => this.lessonsSubject.next(lessons));
+    loadLessons(courseId:number, page: PageQuery) {
+        this.store.pipe(
+            select(selectLessonsPage(courseId, page)),
+            tap( lessons => {
+                if (lessons.length > 0) {
+                    this.lessonsSubject.next(lessons)
+                } else {
+                    this.store.dispatch( new LessonsPageRequested({courseId, page}));
+                }
+            }),
+            catchError( err => of([]))
+        ).subscribe();
 
     }
 

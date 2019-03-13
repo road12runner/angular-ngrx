@@ -1,3 +1,5 @@
+import { CourseRequested } from './../courses.actions';
+import { selectCourseById } from './../course.selector';
 
 
 
@@ -25,7 +27,15 @@ export class CourseResolver implements Resolve<Course> {
 
         const courseId = route.params['id'];
 
-        return this.coursesService.findCourseById(courseId);
+        //return this.coursesService.findCourseById(courseId);
+        return this.store.pipe(select(selectCourseById(courseId)), tap(course => {
+            if (!course) {
+                this.store.dispatch(new CourseRequested({courseId}))
+            }
+            }),
+            filter(course => !!course),
+            first()
+        );
     }
 
 }
